@@ -14,6 +14,7 @@ namespace GiveMePath
         private static LowLevelKeyboardProc _proc = HookCallback;
         private static IntPtr _hookID = IntPtr.Zero;
         private static System.Threading.Timer timer;
+        private static Thread _SetPathThread;
         [STAThread]
         static void Main()
         {
@@ -38,11 +39,11 @@ namespace GiveMePath
             string[] files = (string[])data.GetData(DataFormats.FileDrop);
             if (files.Length == 0)
                 return;
-            
-            Thread t = new Thread(SetClipboardPath);
-            t.SetApartmentState(ApartmentState.STA);
-            t.Start(files[0]);
-            t.Join();
+
+            _SetPathThread = new Thread(SetClipboardPath);
+            _SetPathThread.SetApartmentState(ApartmentState.STA);
+            _SetPathThread.Start(files[0]);
+            _SetPathThread.Join();
         }
         private static void GetSelectedFilePath()
         {
@@ -56,10 +57,10 @@ namespace GiveMePath
 
             if(className.ToString()=="WorkerW")
             {
-                Thread staThread=new Thread(EventFromDesktop);
-                staThread.SetApartmentState(ApartmentState.STA);
-                staThread.Start();
-                staThread.Join();
+                Thread th=new Thread(EventFromDesktop);
+                th.SetApartmentState(ApartmentState.STA);
+                th.Start();
+                th.Join();
             }
             else
             {
@@ -73,10 +74,10 @@ namespace GiveMePath
                         {
                             foreach (Shell32.FolderItem item in items)
                             {
-                                Thread t = new Thread(SetClipboardPath);
-                                t.SetApartmentState(ApartmentState.STA);
-                                t.Start(item.Path);
-                                t.Join();
+                                _SetPathThread = new Thread(SetClipboardPath);
+                                _SetPathThread.SetApartmentState(ApartmentState.STA);
+                                _SetPathThread.Start(item.Path);
+                                _SetPathThread.Join();
                             }
                         }
                     }

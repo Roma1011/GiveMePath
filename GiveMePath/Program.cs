@@ -39,8 +39,8 @@ namespace GiveMePath
             string[] files = (string[])data.GetData(DataFormats.FileDrop);
             if (files.Length == 0)
                 return;
-
             _SetPathThread = new Thread(SetClipboardPath);
+
             _SetPathThread.SetApartmentState(ApartmentState.STA);
             _SetPathThread.Start(files[0]);
             _SetPathThread.Join();
@@ -55,8 +55,9 @@ namespace GiveMePath
             handle = GetForegroundWindow();
             GetClassName(handle, className, nChars);
 
-            if(className.ToString()=="WorkerW")
+            if(className.ToString()=="WorkerW" || className.ToString()=="Progman")
             {
+                Console.WriteLine(className.ToString());
                 Thread th=new Thread(EventFromDesktop);
                 th.SetApartmentState(ApartmentState.STA);
                 th.Start();
